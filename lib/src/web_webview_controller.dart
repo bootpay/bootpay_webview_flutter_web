@@ -3,13 +3,14 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:html';
+import 'dart:html' as html;
+import 'dart:ui_web' as ui_web;
 
 import 'package:flutter/cupertino.dart';
 import 'package:bootpay_webview_flutter_platform_interface/bootpay_webview_flutter_platform_interface.dart';
 
+import 'content_type.dart';
 import 'http_request_factory.dart';
-import 'shims/dart_ui.dart' as ui;
 
 /// An implementation of [PlatformWebViewControllerCreationParams] using Flutter
 /// for Web API.
@@ -27,7 +28,7 @@ class WebWebViewControllerCreationParams
     // ignore: avoid_unused_constructor_parameters
     PlatformWebViewControllerCreationParams params, {
     @visibleForTesting
-        HttpRequestFactory httpRequestFactory = const HttpRequestFactory(),
+    HttpRequestFactory httpRequestFactory = const HttpRequestFactory(),
   }) : this(httpRequestFactory: httpRequestFactory);
 
   static int _nextIFrameId = 0;
@@ -37,10 +38,10 @@ class WebWebViewControllerCreationParams
 
   /// The underlying element used as the WebView.
   @visibleForTesting
-  final IFrameElement iFrame = IFrameElement()
+  final html.IFrameElement iFrame = html.IFrameElement()
     ..id = 'webView${_nextIFrameId++}'
-    ..width = '100%'
-    ..height = '100%'
+    ..style.width = '100%'
+    ..style.height = '100%'
     ..style.border = 'none';
 }
 
@@ -72,20 +73,37 @@ class WebWebViewController extends PlatformWebViewController {
       throw ArgumentError(
           'LoadRequestParams#uri is required to have a scheme.');
     }
-    final HttpRequest httpReq =
+
+    if (params.headers.isEmpty &&
+        (params.body == null || params.body!.isEmpty) &&
+        params.method == LoadRequestMethod.get) {
+      // ignore: unsafe_html
+      _webWebViewParams.iFrame.src = params.uri.toString();
+    } else {
+      await _updateIFrameFromXhr(params);
+    }
+  }
+
+  /// Performs an AJAX request defined by [params].
+  Future<void> _updateIFrameFromXhr(LoadRequestParams params) async {
+    final html.HttpRequest httpReq =
         await _webWebViewParams.httpRequestFactory.request(
       params.uri.toString(),
       method: params.method.serialize(),
       requestHeaders: params.headers,
       sendData: params.body,
     );
-    final String contentType =
+
+    final String header =
         httpReq.getResponseHeader('content-type') ?? 'text/html';
+    final ContentType contentType = ContentType.parse(header);
+    final Encoding encoding = Encoding.getByName(contentType.charset) ?? utf8;
+
     // ignore: unsafe_html
     _webWebViewParams.iFrame.src = Uri.dataFromString(
       httpReq.responseText ?? '',
-      mimeType: contentType,
-      encoding: utf8,
+      mimeType: contentType.mimeType,
+      encoding: encoding,
     ).toString();
   }
 }
@@ -97,7 +115,7 @@ class WebWebViewWidget extends PlatformWebViewWidget {
       : super.implementation(params) {
     final WebWebViewController controller =
         params.controller as WebWebViewController;
-    ui.platformViewRegistry.registerViewFactory(
+    ui_web.platformViewRegistry.registerViewFactory(
       controller._webWebViewParams.iFrame.id,
       (int viewId) => controller._webWebViewParams.iFrame,
     );

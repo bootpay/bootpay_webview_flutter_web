@@ -16,7 +16,7 @@ void main() {
 }
 
 class _WebViewExample extends StatefulWidget {
-  const _WebViewExample({Key? key}) : super(key: key);
+  const _WebViewExample();
 
   @override
   _WebViewExampleState createState() => _WebViewExampleState();
@@ -26,10 +26,10 @@ class _WebViewExampleState extends State<_WebViewExample> {
   final PlatformWebViewController _controller = PlatformWebViewController(
     const PlatformWebViewControllerCreationParams(),
   )..loadRequest(
-      LoadRequestParams(
-        uri: Uri.parse('https://flutter.dev'),
-      ),
-    );
+    LoadRequestParams(
+      uri: Uri.parse('https://flutter.dev'),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,6 @@ class _SampleMenu extends StatelessWidget {
         switch (value) {
           case _MenuOptions.doPostRequest:
             _onDoPostRequest(controller);
-            break;
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuItem<_MenuOptions>>[
@@ -88,3 +87,4 @@ class _SampleMenu extends StatelessWidget {
     await controller.loadRequest(params);
   }
 }
+

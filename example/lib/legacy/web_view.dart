@@ -30,10 +30,10 @@ class WebView extends StatefulWidget {
   /// The web view can be controlled using a `WebViewController` that is passed to the
   /// `onWebViewCreated` callback once the web view is created.
   const WebView({
-    Key? key,
+    super.key,
     this.onWebViewCreated,
     this.initialUrl,
-  }) : super(key: key);
+  });
 
   /// The WebView platform that's used by this WebView.
   ///
@@ -54,7 +54,7 @@ class WebView extends StatefulWidget {
 
 class _WebViewState extends State<WebView> {
   final Completer<WebViewController> _controller =
-      Completer<WebViewController>();
+  Completer<WebViewController>();
   late final _PlatformCallbacksHandler _platformCallbacksHandler;
 
   @override
@@ -93,7 +93,7 @@ class _WebViewState extends State<WebView> {
         webSettings: _webSettingsFromWidget(widget),
       ),
       javascriptChannelRegistry:
-          JavascriptChannelRegistry(<JavascriptChannel>{}),
+      JavascriptChannelRegistry(<JavascriptChannel>{}),
     );
   }
 }
@@ -128,9 +128,9 @@ class WebViewController {
   /// Creates a [WebViewController] which can be used to control the provided
   /// [WebView] widget.
   WebViewController(
-    this._widget,
-    this._webViewPlatformController,
-  ) : assert(_webViewPlatformController != null) {
+      this._widget,
+      this._webViewPlatformController,
+      ) {
     _settings = _webSettingsFromWidget(_widget);
   }
 
@@ -149,10 +149,9 @@ class WebViewController {
   ///
   /// Throws an ArgumentError if `url` is not a valid URL string.
   Future<void> loadUrl(
-    String url, {
-    Map<String, String>? headers,
-  }) async {
-    assert(url != null);
+      String url, {
+        Map<String, String>? headers,
+      }) async {
     _validateUrlString(url);
     return _webViewPlatformController.loadUrl(url, headers);
   }
@@ -231,7 +230,7 @@ class WebViewController {
 
   Future<void> _updateSettings(WebSettings newSettings) {
     final WebSettings update =
-        _clearUnchangedWebSettings(_settings, newSettings);
+    _clearUnchangedWebSettings(_settings, newSettings);
     _settings = newSettings;
     return _webViewPlatformController.updateSettings(update);
   }
@@ -318,11 +317,9 @@ class WebViewController {
     assert(currentValue.hasNavigationDelegate != null);
     assert(currentValue.hasProgressTracking != null);
     assert(currentValue.debuggingEnabled != null);
-    assert(currentValue.userAgent != null);
     assert(newValue.javascriptMode != null);
     assert(newValue.hasNavigationDelegate != null);
     assert(newValue.debuggingEnabled != null);
-    assert(newValue.userAgent != null);
     assert(newValue.zoomEnabled != null);
 
     JavascriptMode? javascriptMode;
