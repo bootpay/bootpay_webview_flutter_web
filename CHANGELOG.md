@@ -1,6 +1,12 @@
+## 0.2.3+4
+
+* Migrates from `dart:html` to `package:web` and `dart:js_interop`.
+* Updates `HttpRequestFactory.request` to use the Fetch API.
+* Updates minimum supported SDK version to Flutter 3.24/Dart 3.5.
+ 
 ## 0.2.2+4
-* clone 0.2.2+4 version 
-* 
+* clone 0.2.2+4 version
+*
 ## 0.2.1
 * 0.2.1 버전을 fork 하였습니다.
 
